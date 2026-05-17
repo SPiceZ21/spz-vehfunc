@@ -9,12 +9,11 @@ local leftOn    = false
 local rightOn   = false
 local hazardsOn = false
 
-local blinkState   = false
-local lastBlink    = 0
-local BLINK_MS     = 600
-
--- Auto-cancel indicators on steering (degrees threshold)
-local STEER_CANCEL = 0.3
+local blinkState     = false
+local lastBlink      = 0
+local BLINK_ON_MS    = 380  -- Duration blinkers stay ON
+local BLINK_OFF_MS   = 280  -- Duration blinkers stay OFF (the gap)
+local steerTriggered = false
 
 -- ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -63,6 +62,7 @@ RegisterCommand('vehfunc_leftSignal', function()
     end
     hazardsOn = false
     leftOn = not leftOn
+    steerTriggered = false
     if not leftOn then SetVehicleIndicatorLights(veh, 0, false) end
 end, false)
 
@@ -76,6 +76,7 @@ RegisterCommand('vehfunc_rightSignal', function()
     end
     hazardsOn = false
     rightOn = not rightOn
+    steerTriggered = false
     if not rightOn then SetVehicleIndicatorLights(veh, 1, false) end
 end, false)
 
@@ -119,7 +120,8 @@ CreateThread(function()
 
         if ok then
             local now = GetGameTimer()
-            if now - lastBlink >= BLINK_MS then
+            local nextChange = blinkState and BLINK_ON_MS or BLINK_OFF_MS
+            if now - lastBlink >= nextChange then
                 lastBlink  = now
                 blinkState = not blinkState
             end
@@ -128,18 +130,32 @@ CreateThread(function()
 
             -- Auto-cancel single indicator when steering back past threshold
             if not hazardsOn then
-                local steer = GetVehicleSteeringAngle(veh)
-                local absSteer = steer < 0 and -steer or steer
-                if leftOn and steer > STEER_CANCEL and absSteer > 5.0 then
-                    leftOn = false
-                    SetVehicleIndicatorLights(veh, 0, false)
-                elseif rightOn and steer < -STEER_CANCEL and absSteer > 5.0 then
-                    rightOn = false
-                    SetVehicleIndicatorLights(veh, 1, false)
+                if leftOn or rightOn then
+                    local steer = GetVehicleSteeringAngle(veh)
+                    -- Steering angle: positive (left), negative (right)
+                    if leftOn then
+                        if steer > 15.0 then
+                            steerTriggered = true
+                        elseif steerTriggered and steer < 5.0 then
+                            leftOn = false
+                            steerTriggered = false
+                            SetVehicleIndicatorLights(veh, 0, false)
+                        end
+                    elseif rightOn then
+                        if steer < -15.0 then
+                            steerTriggered = true
+                        elseif steerTriggered and steer > -5.0 then
+                            rightOn = false
+                            steerTriggered = false
+                            SetVehicleIndicatorLights(veh, 1, false)
+                        end
+                    end
+                else
+                    steerTriggered = false
                 end
             end
 
-            Wait(50)
+            Wait(10)
         else
             resetAll(veh)
             Wait(500)
