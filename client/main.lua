@@ -16,7 +16,6 @@ local BLINK_OFF_MS   = 280  -- Duration blinkers stay OFF (the gap)
 local steerTriggered = false
 
 -- New Vehicle Functions State
-local cruiseSpeed        = 0.0
 local isEngineRunning    = true
 local engineStarting     = false
 local lastBrakePulse     = 0
@@ -51,7 +50,6 @@ local function resetAll(veh)
     rightOn         = false
     hazardsOn       = false
     blinkState      = false
-    cruiseSpeed     = 0.0
     engineStarting  = false
     if veh and veh ~= 0 then
         SetVehicleIndicatorLights(veh, 0, false)
@@ -117,30 +115,6 @@ RegisterCommand('-vehfunc_flashHeadlights', function()
     end
 end, false)
 
--- Toggle Cruise Control
-RegisterCommand('vehfunc_toggleCruise', function()
-    local ok, veh = inDriverSeat()
-    if not ok then return end
-    
-    if not isEngineRunning then
-        Notify("Engine is not running", "error")
-        return
-    end
-    
-    if cruiseSpeed > 0.0 then
-        cruiseSpeed = 0.0
-        Notify("Cruise Control Disabled", "error")
-    else
-        local speed = GetEntitySpeed(veh)
-        local speedKmh = speed * 3.6
-        if speedKmh < 20.0 then
-            Notify("Speed too low for Cruise Control (Min 20 km/h)", "error")
-        else
-            cruiseSpeed = speed
-            Notify(string.format("Cruise Control Locked: %.0f km/h", speedKmh), "success")
-        end
-    end
-end, false)
 
 -- Toggle Engine Ignition
 RegisterCommand('vehfunc_toggleEngine', function()
@@ -178,7 +152,6 @@ RegisterKeyMapping('vehfunc_leftSignal',       'Left Indicator',       'keyboard
 RegisterKeyMapping('vehfunc_rightSignal',       'Right Indicator',      'keyboard', 'RIGHT')
 RegisterKeyMapping('vehfunc_hazards',           'Hazard Lights',        'keyboard', 'H')
 RegisterKeyMapping('+vehfunc_flashHeadlights',  'Flash Headlights',     'keyboard', 'L')
-RegisterKeyMapping('vehfunc_toggleCruise',      'Toggle Cruise Control','keyboard', 'C')
 RegisterKeyMapping('vehfunc_toggleEngine',      'Toggle Engine Ignition','keyboard', 'Y')
 
 -- ── Main thread ───────────────────────────────────────────────────────────────
@@ -196,7 +169,6 @@ CreateThread(function()
             if veh ~= lastVeh then
                 lastVeh = veh
                 isEngineRunning = GetIsVehicleEngineRunning(veh)
-                cruiseSpeed = 0.0
             end
 
             -- 1. Blinker timing
@@ -251,22 +223,10 @@ CreateThread(function()
                 SetVehicleBrakeLights(veh, brakePulseState)
             end
 
-            -- 5. Active Cruise Control
-            if cruiseSpeed > 0.0 then
-                -- Disable cruise if braking, handbraking, or vehicle is stopping
-                if IsControlPressed(0, 72) or IsControlPressed(0, 76) or speedKmh < 10.0 then
-                    cruiseSpeed = 0.0
-                    Notify("Cruise Control Canceled", "error")
-                else
-                    SetVehicleForwardSpeed(veh, cruiseSpeed)
-                end
-            end
-
             Wait(10)
         else
             resetAll(veh)
             lastVeh = 0
-            cruiseSpeed = 0.0
             Wait(500)
         end
     end
