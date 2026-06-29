@@ -1,7 +1,7 @@
 -- SPiceZ Vehicle Functions
 
 local function Notify(msg, type)
-    exports["spz-lib"]:Notify(msg, type or "info")
+    lib.notify({ description = msg, type = type or "info" })
 end
 
 -- State
