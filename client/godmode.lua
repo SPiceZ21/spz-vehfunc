@@ -1,57 +1,48 @@
 -- client/godmode.lua
--- Vehicles take no damage by default. Applied to whatever vehicle the local
--- player is in — spawned, race, freeroam. Cosmetic scuffs and physics are
--- untouched (cars still bump and push); they just never break, deform, catch
--- fire, or lose performance.
+-- Vehicles take no damage. Applied to whatever vehicle the local player is in
+-- (spawned, race, freeroam). Cars still bump/push physically — they just never
+-- break, deform, catch fire, or lose performance.
 --
--- Toggle off with Config.VehicleGodmode = false (see below).
+-- Everything is re-applied on a short tick, not once, because several things
+-- reset these flags: the race grid-unfreeze (SPZ:freezeRacer at GO sets
+-- invincible=false), vehicle re-streaming, and network-owner changes. Cheap
+-- enough at 250 ms.
 
-local GODMODE = true   -- default ON; set false to let vehicles take damage
+local GODMODE = true   -- set false to let vehicles take damage
+if Config and Config.VehicleGodmode == false then GODMODE = false end
 
--- One-time flags per vehicle (cheap — set once when you enter it).
-local function harden(veh)
+local function protect(veh)
+    -- damage gate (most reliable — survives owner changes)
+    SetEntityCanBeDamaged(veh, false)
+    SetEntityInvincible(veh, true)
+    SetEntityProofs(veh, true, true, true, true, true, true, true, true)
+
+    -- component breakage
     SetVehicleTyresCanBurst(veh, false)
     SetVehicleWheelsCanBreak(veh, false)
     SetVehicleCanBeVisiblyDamaged(veh, false)
     SetVehicleEngineCanDegrade(veh, false)
-    SetVehicleStrong(veh, true)          -- resists deformation
-end
+    SetVehicleStrong(veh, true)
 
--- Re-asserted every tick: invincibility + health. Must repeat because the
--- race grid-unfreeze (SPZ:freezeRacer at GO) sets invincible=false, which
--- would otherwise strip godmode mid-race.
-local function topUp(veh)
-    SetEntityInvincible(veh, true)
-    SetEntityProofs(veh, true, true, true, true, true, true, true, true)
+    -- pin health so anything that slipped through is repaired instantly
     SetVehicleBodyHealth(veh, 1000.0)
     SetVehicleEngineHealth(veh, 1000.0)
     SetVehiclePetrolTankHealth(veh, 1000.0)
-    SetVehicleDirtLevel(veh, 0.0)
+    SetVehicleDeformationFixed(veh)
 end
 
 CreateThread(function()
-    local hardened = 0   -- vehicle handle we've already hardened this stint
     while true do
-        if not GODMODE then
-            hardened = 0
-            Wait(1000)
-        else
-            local ped = PlayerPedId()
-            local veh = GetVehiclePedIsIn(ped, false)
+        if GODMODE then
+            local veh = GetVehiclePedIsIn(PlayerPedId(), false)
             if veh ~= 0 and DoesEntityExist(veh) then
-                if veh ~= hardened then
-                    harden(veh)
-                    hardened = veh
-                end
-                topUp(veh)
-                Wait(500)
+                protect(veh)
+                Wait(250)
             else
-                hardened = 0
-                Wait(750)
+                Wait(600)
             end
+        else
+            Wait(1500)
         end
     end
 end)
-
--- Honour a config override if spz-vehfunc ever gains a Config table.
-if Config and Config.VehicleGodmode == false then GODMODE = false end
