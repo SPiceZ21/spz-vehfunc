@@ -9,6 +9,7 @@ shared_script '@ox_lib/init.lua'
 client_scripts {
   'client/main.lua',
   'client/godmode.lua',
+  'client/taunts.lua',
 }
 
 dependency 'ox_lib'
