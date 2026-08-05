@@ -10,6 +10,7 @@ client_scripts {
   'client/main.lua',
   'client/godmode.lua',
   'client/taunts.lua',
+  'client/idlecam.lua',
 }
 
 dependency 'ox_lib'
