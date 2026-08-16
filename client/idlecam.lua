@@ -6,7 +6,7 @@
 -- (steer, throttle, look, key) drops it instantly.
 
 local ENABLED    = true
-local IDLE_DELAY = 8000     -- ms of no input before the reel starts
+local IDLE_DELAY = 60000    -- ms of no input before the reel starts (60s)
 local FOV        = 40.0
 local LOOK_DZ    = 0.03     -- mouse/stick deadzone that counts as "looking"
 
