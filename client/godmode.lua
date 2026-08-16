@@ -1,7 +1,7 @@
 -- client/godmode.lua
--- Vehicles take no damage. Applied to whatever vehicle the local player is in
--- (spawned, race, freeroam). Cars still bump/push physically — they just never
--- break, deform, catch fire, or lose performance.
+-- Vehicles take no damage. Applied to EVERY vehicle in scope (yours, parked,
+-- other players', race, freeroam). Cars still bump/push physically — they just
+-- never break, deform, catch fire, or lose performance.
 --
 -- Everything is re-applied on a short tick, not once, because several things
 -- reset these flags: the race grid-unfreeze (SPZ:freezeRacer at GO sets
@@ -34,13 +34,16 @@ end
 CreateThread(function()
     while true do
         if GODMODE then
-            local veh = GetVehiclePedIsIn(PlayerPedId(), false)
-            if veh ~= 0 and DoesEntityExist(veh) then
-                protect(veh)
-                Wait(250)
-            else
-                Wait(600)
+            -- Protect EVERY vehicle in scope, not just the one we're driving —
+            -- so parked / exited / other players' cars never take visual or
+            -- engine damage either. The car we're in is refreshed most often.
+            local mine = GetVehiclePedIsIn(PlayerPedId(), false)
+            if mine ~= 0 and DoesEntityExist(mine) then protect(mine) end
+
+            for _, veh in ipairs(GetGamePool('CVehicle')) do
+                if veh ~= mine and DoesEntityExist(veh) then protect(veh) end
             end
+            Wait(500)
         else
             Wait(1500)
         end
