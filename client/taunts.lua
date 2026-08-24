@@ -19,7 +19,7 @@ RegisterCommand('taunt_horn', function()
     CreateThread(function()
         for _ = 1, 2 do
             SetVehicleFullbeam(veh, true)
-            StartVehicleHorn(veh, 170, `HELDDOWN`, false)
+            StartVehicleHorn(veh, 170, 'HELDDOWN', false)
             Wait(170)
             SetVehicleFullbeam(veh, false)
             Wait(110)
