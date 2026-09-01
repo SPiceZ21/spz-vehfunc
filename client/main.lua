@@ -122,10 +122,11 @@ RegisterCommand('-vehfunc_flashHeadlights', function()
     end
 end, false)
 
--- Key Mappings
+-- Key Mappings — registry: Docs/keybinds.md
 RegisterKeyMapping('vehfunc_leftSignal',       'Left Indicator',   'keyboard', 'LEFT')
 RegisterKeyMapping('vehfunc_rightSignal',      'Right Indicator',  'keyboard', 'RIGHT')
-RegisterKeyMapping('vehfunc_hazards',          'Hazard Lights',    'keyboard', 'H')
+-- NOT H: that is GTA's own headlights toggle, so hazards flipped the lights too.
+RegisterKeyMapping('vehfunc_hazards',          'Hazard Lights',    'keyboard', 'J')
 RegisterKeyMapping('+vehfunc_flashHeadlights', 'Flash Headlights', 'keyboard', 'L')
 
 -- ── Main thread ───────────────────────────────────────────────────────────────
