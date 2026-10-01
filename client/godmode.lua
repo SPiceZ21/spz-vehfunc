@@ -36,7 +36,11 @@ CreateThread(function()
         -- Hot Pursuit needs real damage (a wrecked getaway car = busted), and
         -- every player in the match bucket has inPursuit set, so nobody there
         -- re-protects the match cars.
-        if GODMODE and not LocalPlayer.state.inPursuit then
+        -- inMinigame == "Hot Pursuit" is set locally by the pursuit client the
+        -- moment the match begins, so there is no window where the replicated
+        -- inPursuit hasn't landed yet and this re-protects (and re-heals) the car.
+        local st = LocalPlayer.state
+        if GODMODE and not st.inPursuit and st.inMinigame ~= "Hot Pursuit" then
             -- Protect EVERY vehicle in scope, not just the one we're driving —
             -- so parked / exited / other players' cars never take visual or
             -- engine damage either. The car we're in is refreshed most often.
