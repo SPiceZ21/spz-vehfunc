@@ -39,8 +39,10 @@ CreateThread(function()
         -- inMinigame == "Hot Pursuit" is set locally by the pursuit client the
         -- moment the match begins, so there is no window where the replicated
         -- inPursuit hasn't landed yet and this re-protects (and re-heals) the car.
+        -- Any other minigame that wants real damage (Demolition derby) sets the
+        -- local `vehDamage` flag for the round instead of being named here.
         local st = LocalPlayer.state
-        if GODMODE and not st.inPursuit and st.inMinigame ~= "Hot Pursuit" then
+        if GODMODE and not st.inPursuit and st.inMinigame ~= "Hot Pursuit" and st.vehDamage ~= true then
             -- Protect EVERY vehicle in scope, not just the one we're driving —
             -- so parked / exited / other players' cars never take visual or
             -- engine damage either. The car we're in is refreshed most often.
