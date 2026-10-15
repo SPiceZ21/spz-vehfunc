@@ -31,6 +31,14 @@ local function protect(veh)
     SetVehicleDeformationFixed(veh)
 end
 
+-- Admin trolls (spz-admin: pop tyres, smoking engine, explode) need the
+-- target's own car to be breakable for a moment. They ask for a pause on the
+-- car we're driving; everything else stays protected, and it resumes itself.
+local pauseUntil = 0
+AddEventHandler("spz-admin:godmodePause", function(ms)
+    pauseUntil = math.max(pauseUntil, GetGameTimer() + (tonumber(ms) or 0))
+end)
+
 CreateThread(function()
     while true do
         -- Hot Pursuit needs real damage (a wrecked getaway car = busted), and
@@ -47,7 +55,8 @@ CreateThread(function()
             -- so parked / exited / other players' cars never take visual or
             -- engine damage either. The car we're in is refreshed most often.
             local mine = GetVehiclePedIsIn(PlayerPedId(), false)
-            if mine ~= 0 and DoesEntityExist(mine) then protect(mine) end
+            local paused = GetGameTimer() < pauseUntil
+            if mine ~= 0 and DoesEntityExist(mine) and not paused then protect(mine) end
 
             for _, veh in ipairs(GetGamePool('CVehicle')) do
                 if veh ~= mine and DoesEntityExist(veh) then protect(veh) end
