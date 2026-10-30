@@ -1,37 +1,53 @@
 # spz-vehfunc
 
-> Indicators, hazards, headlight flash, taunts, idle cam · `v1.0.1`
+> Indicators, hazards, headlight flash and horn taunts.
+
+![version](https://img.shields.io/badge/version-1.0.4-ff6200) ![SPiceZ-Core](https://img.shields.io/badge/SPiceZ--Core-beta-18181b)
 
 ## Overview
 
-`spz-vehfunc` is the grab bag of small driving conveniences: turn signals and hazards,
-headlight flashing, horn taunts and emotes, an idle showcase camera, and a godmode toggle
-for testing.
+Small driving quality-of-life functions: turn signals, hazards, headlight flash, a horn taunt and an idle camera.
 
-## Structure
+## Features
 
-| Side | File | Purpose |
-|---|---|---|
-| Client | `client/main.lua` | Indicators, hazards, headlight flash, keybinds |
-| Client | `client/godmode.lua` | Vehicle damage toggle |
-| Client | `client/taunts.lua` | Horn taunts and emotes |
-| Client | `client/idlecam.lua` | Idle showcase camera |
+- Indicators and hazards
+- Headlight flash
+- Horn taunt
+- Idle camera
+
+## Requirements
+
+None — runs on its own.
+
+## Installation
+
+Included in the [txAdmin recipe](https://github.com/SPiceZ21/spz-txrecipe). Manual install:
+
+1. Download `spz-vehfunc` from GitHub (latest release, or the repository) into your `resources` folder.
+2. Add to `server.cfg`:
+
+```cfg
+ensure spz-vehfunc
+```
 
 ## Commands
 
-| Command | Effect |
+| Command | Who | Description |
+|---|---|---|
+| `/idlecam` | player | Toggle the idle camera |
+
+## Key binds
+
+Rebindable in **Settings → Key Bindings → FiveM**.
+
+| Action | Default |
 |---|---|
-| `/vehfunc_leftSignal` · `/vehfunc_rightSignal` · `/vehfunc_hazards` | Indicators and hazards (bindable) |
-| `+vehfunc_flashHeadlights` / `-vehfunc_flashHeadlights` | Headlight flash keybind |
-| `/taunt_horn` · `/emote` | Taunts and emotes |
-| `/idlecam` | Toggle the idle camera |
-
-All keybinds are rebindable in Settings → Key Bindings.
-
-## Dependencies
-
-`ox_lib`
+| Left Indicator | `LEFT` |
+| Right Indicator | `RIGHT` |
+| Hazard Lights | `J` |
+| Flash Headlights | `L` |
+| Horn Taunt (beep + flash) | `G` |
 
 ---
 
-Part of [SPiceZ-Core](../README.md) · GPL-3.0
+Part of **SPiceZ-Core** — [documentation](https://github.com/SPiceZ21/Docs) · [all modules](https://github.com/SPiceZ21/Docs/blob/main/modules/README.md)
