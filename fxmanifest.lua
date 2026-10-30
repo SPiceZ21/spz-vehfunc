@@ -2,7 +2,7 @@ fx_version 'cerulean'
 game 'gta5'
 
 description 'SPiceZ Vehicle Functions - Indicators, Hazards, Flash Headlights'
-version '1.0.5'
+version '1.0.6'
 
 shared_script '@ox_lib/init.lua'
 
